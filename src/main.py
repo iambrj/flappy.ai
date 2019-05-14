@@ -2,8 +2,8 @@ import pygame
 import time
 from random import randint, randrange
 
-# Colors
 
+# Colors
 black = (0, 0, 0)
 textcolor1 = (255, 32, 23)
 textcolor2 = (235, 32, 55)
@@ -16,7 +16,9 @@ orange = (255, 113, 0)
 yellow = (255, 236, 0)
 purple = (252, 67, 255)
 
+
 pygame.init ()
+
 
 # Frame width and height
 surfaceWidth = 800
@@ -25,13 +27,27 @@ surface = pygame.display.set_mode ((surfaceWidth, surfaceHeight))
 pygame.display.set_caption ("flappy.ai")
 clock = pygame.time.Clock ()
 
-# Use a image with transparent background
 
-img = pygame.image.load ("../assets/bird.png")
+# Use a image with transparent background
 background = pygame.image.load("../assets/background1.jpg")
-# Getting height and width of  bird
-imageWidth = img.get_width ()
-imageHeight = img.get_height ()
+
+
+class Bird:
+    """
+    x, y represent bird's position relative to top-left corner and y_move represents amount by which the bird should move
+    """
+    # TODO: add member variable AST
+    # TODO: add random AST generator for member variable
+    # TODO: add AST evaluator
+    def __init__(self, xval, yval, y_moveval, scoreval):
+        self.y_move = y_moveval
+        self.x = xval
+        self.y = yval
+        self.current_score = scoreval
+        self.img = pygame.image.load ("../assets/bird.png")
+        self.imageWidth = self.img.get_width ()
+        self.imageHeight = self.img.get_height ()
+
 
 # Restart/quit the game
 def replay_or_quit():
@@ -46,6 +62,7 @@ def replay_or_quit():
         return event.key
 
     return None
+
 
 # Display stats
 def score(count):
@@ -91,7 +108,6 @@ def msgsurface(text):
 
     surface.blit (smallTextSurface, smallTextRectangle)
 
-
     # updating the screen to make text appear
     pygame.display.update ()
     time.sleep (1)
@@ -118,22 +134,7 @@ def image(x, y, img):
     surface.blit (img, (x, y))
 
 
-class Bird:
-    """
-    x, y represent bird's position relative to top-left corner and y_move represents amount by which the bird should move
-    """
-    # TODO: add member variable AST
-    # TODO: add random AST generator for member variable
-    # TODO: add AST evaluator
-    def __init__(self, xval, yval, y_moveval, scoreval):
-        self.y_move = y_moveval
-        self.x = xval
-        self.y = yval
-        self.current_score = scoreval
-
-
 def main():
-
     # TODO: Set initial population here
     b = Bird(200, 150, 0, 0)
 
@@ -148,7 +149,7 @@ def main():
     i = 1
 
     # Gap is the distance between blocks
-    gap = int(imageHeight * 4)
+    gap = int(b.imageHeight * 4)
 
     # Movement speed of block
     block_move = 4
@@ -175,7 +176,7 @@ def main():
         b.y += b.y_move
 
         image(0,0,background)
-        image(b.x, b.y,img)
+        image(b.x, b.y,b.img)
         blocks(x_block, y_block, blockWidth, blockHeight1, gap,green)
 
         # Move block towards bird
@@ -185,7 +186,7 @@ def main():
         score(b.current_score / 5)
 
         # Check whether bird is in frame
-        if b.y > surfaceHeight - imageHeight:
+        if b.y > surfaceHeight - b.imageHeight:
             gameOver(b.current_score)
 
         # Draw new block as current block exits frame
@@ -194,16 +195,16 @@ def main():
             blockHeight1 = randint (0, int (surfaceHeight / 1.5))
 
         # Check for collision with upper block
-        if b.x + imageWidth > x_block:
+        if b.x + b.imageWidth > x_block:
             # bird is within the block
             if b.x < x_block + blockWidth:
                 if b.y < blockHeight1 + 15:
-                    if b.x - imageWidth < blockWidth + x_block:
+                    if b.x - b.imageWidth < blockWidth + x_block:
                         gameOver (b.current_score)
 
         # Check for collision with lower block
-        if b.x + imageWidth > x_block:
-            if b.y + imageHeight > blockHeight1 + gap:
+        if b.x + b.imageWidth > x_block:
+            if b.y + b.imageHeight > blockHeight1 + gap:
                 if b.x < x_block + blockWidth:
                     gameOver(b.current_score)
         
