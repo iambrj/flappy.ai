@@ -40,12 +40,12 @@ class Bird:
     # TODO: add member variable AST
     # TODO: add random AST generator for member variable
     # TODO: add AST evaluator
-    def __init__(self, xval, yval, y_moveval, scoreval, no):
-        self.y_move = y_moveval
-        self.x = xval
-        self.y = yval
+    def __init__(self, no):
+        self.y_move = 0
+        self.x = 200
+        self.y = 150
         self.number = no
-        self.current_score = scoreval
+        self.current_score = 0
         self.img = pygame.image.load ("../assets/bird.png")
         self.imageWidth = self.img.get_width ()
         self.imageHeight = self.img.get_height ()
@@ -148,7 +148,7 @@ def main():
     # Initialize array of Bird objects
     birds = []
     for i in range(1, BIRD_COUNT + 1):
-        birds.append(Bird(200, 150, 0, 0, i))
+        birds.append(Bird(i))
 
     # Gap is the distance between blocks
     gap = int(birds[0].imageHeight * 4)
@@ -189,7 +189,7 @@ def main():
                 x_block -= block_move
 
                 # Display score
-                score(scoreVal, b.number)
+                score(b.current_score, b.number)
 
                 # Check whether bird is in frame
                 if b.y > surfaceHeight - b.imageHeight:
@@ -215,8 +215,8 @@ def main():
                             game_over = True
                 
                 # Update score
-                if b.x < x_block + 40 and b.x > x_block - block_move + i * 20:
-                    scoreVal += 1
+                if b.x > x_block - block_move + i * 20:
+                    b.current_score += 1
 
                 pygame.display.update ()
                 clock.tick (60)
