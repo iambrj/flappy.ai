@@ -20,12 +20,13 @@ purple = (252, 67, 255)
 pygame.init ()
 
 
-# Frame width and height
+# Global variables
 surfaceWidth = 800
 surfaceHeight = 500
 surface = pygame.display.set_mode ((surfaceWidth, surfaceHeight))
 pygame.display.set_caption ("flappy.ai")
 clock = pygame.time.Clock ()
+BIRD_COUNT = 10
 
 
 # Use a image with transparent background
@@ -39,10 +40,11 @@ class Bird:
     # TODO: add member variable AST
     # TODO: add random AST generator for member variable
     # TODO: add AST evaluator
-    def __init__(self, xval, yval, y_moveval, scoreval):
+    def __init__(self, xval, yval, y_moveval, scoreval, no):
         self.y_move = y_moveval
         self.x = xval
         self.y = yval
+        self.number = no
         self.current_score = scoreval
         self.img = pygame.image.load ("../assets/bird.png")
         self.imageWidth = self.img.get_width ()
@@ -65,11 +67,11 @@ def replay_or_quit():
 
 
 # Display stats
-def score(count):
+def score(count, number):
 
     smallText = pygame.font.Font ("freesansbold.ttf", 20)
 
-    score = "Score: " + str(count)
+    score = "Score: " + str(count) + " Bird: " + str(number)
     titleTextSurface, titleTextRectangle = makeTextObjs (score, smallText, sunset)
     titleTextRectangle.center = surfaceWidth / 2, 20
     # Put text on screen
@@ -135,9 +137,6 @@ def image(x, y, img):
 
 
 def main():
-    # TODO: Set initial population here
-    b = Bird(200, 150, 0, 0)
-
     # x_block and y_block determine the positions of block
     x_block = surfaceWidth
     y_block = 0
@@ -146,74 +145,81 @@ def main():
     # Block  height is randomed between 100 and  around half of surface height
     blockHeight1 = randint (100, int (surfaceHeight / 1.5) - 100)
 
-    i = 1
+    # Initialize array of Bird objects
+    birds = []
+    for i in range(1, BIRD_COUNT + 1):
+        birds.append(Bird(200, 150, 0, 0, i))
 
     # Gap is the distance between blocks
-    gap = int(b.imageHeight * 4)
+    gap = int(birds[0].imageHeight * 4)
 
     # Movement speed of block
     block_move = 4
 
     game_over = False
 
-    while not game_over:
-    	# Responding to events such as key up and quit button
-        for event in pygame.event.get ():
-            if event.type == pygame.QUIT:
-                game_over = True
+    while True:
+        for b in birds:
+            game_over = False
+            scoreVal = 0
+            while not game_over:
+                # Responding to events such as key up and quit button
+                for event in pygame.event.get ():
+                    if event.type == pygame.QUIT:
+                        game_over = True
 
-            # TODO: Implemet genetic programming here
-            # Setting key controls
-            # if up key is pressed move up 4 positions vertically
-            if event.type == pygame.KEYDOWN:
-                 if event.key == pygame.K_UP:
-                     b.y_move = -4
-            # if up key is released move down 4 positions vertically
-            if event.type == pygame.KEYUP:
-                 if event.key == pygame.K_UP:
-                     b.y_move = 4
-        # Update position accordingly
-        b.y += b.y_move
+                    # TODO: Implemet genetic programming here
+                    # Setting key controls
+                    # if up key is pressed move up 4 positions vertically
+                    if event.type == pygame.KEYDOWN:
+                         if event.key == pygame.K_UP:
+                             b.y_move = -4
+                    # if up key is released move down 4 positions vertically
+                    if event.type == pygame.KEYUP:
+                         if event.key == pygame.K_UP:
+                             b.y_move = 4
+                # Update position accordingly
+                b.y += b.y_move
 
-        image(0,0,background)
-        image(b.x, b.y,b.img)
-        blocks(x_block, y_block, blockWidth, blockHeight1, gap,green)
+                image(0,0,background)
+                image(b.x, b.y,b.img)
+                blocks(x_block, y_block, blockWidth, blockHeight1, gap,green)
 
-        # Move block towards bird
-        x_block -= block_move
+                # Move block towards bird
+                x_block -= block_move
 
-        # Display score
-        score(b.current_score / 5)
+                # Display score
+                score(scoreVal, b.number)
 
-        # Check whether bird is in frame
-        if b.y > surfaceHeight - b.imageHeight:
-            gameOver(b.current_score)
+                # Check whether bird is in frame
+                if b.y > surfaceHeight - b.imageHeight:
+                    game_over = True
 
-        # Draw new block as current block exits frame
-        if x_block < (-1 * blockWidth):
-            x_block = surfaceWidth
-            blockHeight1 = randint (0, int (surfaceHeight / 1.5))
+                # Draw new block as current block exits frame
+                if x_block < (-1 * blockWidth):
+                    x_block = surfaceWidth
+                    blockHeight1 = randint (0, int (surfaceHeight / 1.5))
 
-        # Check for collision with upper block
-        if b.x + b.imageWidth > x_block:
-            # bird is within the block
-            if b.x < x_block + blockWidth:
-                if b.y < blockHeight1 + 15:
-                    if b.x - b.imageWidth < blockWidth + x_block:
-                        gameOver (b.current_score)
+                # Check for collision with upper block
+                if b.x + b.imageWidth > x_block:
+                    # bird is within the block
+                    if b.x < x_block + blockWidth:
+                        if b.y < blockHeight1 + 15:
+                            if b.x - b.imageWidth < blockWidth + x_block:
+                                game_over = True
 
-        # Check for collision with lower block
-        if b.x + b.imageWidth > x_block:
-            if b.y + b.imageHeight > blockHeight1 + gap:
-                if b.x < x_block + blockWidth:
-                    gameOver(b.current_score)
-        
-        # Update score
-        if b.x < x_block + 40 and b.x > x_block - block_move + i * 20:
-           b.current_score += 1
+                # Check for collision with lower block
+                if b.x + b.imageWidth > x_block:
+                    if b.y + b.imageHeight > blockHeight1 + gap:
+                        if b.x < x_block + blockWidth:
+                            game_over = True
+                
+                # Update score
+                if b.x < x_block + 40 and b.x > x_block - block_move + i * 20:
+                    scoreVal += 1
 
-        pygame.display.update ()
-        clock.tick (60)
+                pygame.display.update ()
+                clock.tick (60)
 
 
 if __name__ == '__main__':
