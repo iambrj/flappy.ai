@@ -64,8 +64,23 @@ class Bird:
             self.expr += randomOp()
             self.expr += randomValue()
 
+
     #TODO: add function to perform mutation
-    #TODO: add funciton to perform crossover (outside class?)
+    def mutate(self):
+
+        pos = randrange(0, len(self.expr) - 1)
+
+        tempstr = ""
+        for i in (0, pos):
+            tempstr += self.expr[i]
+
+        if self.expr[pos] == "+" or self.expr[pos] == "-" or self.expr[pos] == "*" or self.expr[pos] == "/":
+            tempstr += randomOp()
+        else:
+            tempstr += randomValue()
+
+
+   #TODO: add funciton to perform crossover (outside class?)
 
 def randomValue():
 
@@ -89,7 +104,7 @@ def randomValue():
 
 def randomOp():
 
-    opval = randrange(1, 10)
+    opval = randrange(1, 4)
 
     if opval == 1:
         return "+"
