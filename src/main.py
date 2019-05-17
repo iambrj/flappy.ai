@@ -1,7 +1,7 @@
+from __future__ import division
 import pygame
 import time
 from random import randint, randrange
-from __future__ import division
 from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group, Optional, ZeroOrMore, Forward, nums, alphas, oneOf)
 import math
 import operator
@@ -54,6 +54,50 @@ class Bird:
         self.expr = ""
 
     # TODO: add functions to - crossover, mutate, generate random expr
+    def randomizer(self):
+
+        self.expr = ""
+        self.expr += randomValue()
+
+        opcount = randrange(1, 10)
+
+        for i in (1, opcount):
+            self.expr += randomOp()
+            self.expr += randomValue()
+
+
+def randomValue():
+
+    opval = randrange(1, 5)
+
+    if opval == 1:
+        return str(randrange(1, 100))
+    elif opval == 2:
+        return "px"
+    elif opval == 3:
+        return "py"
+    elif opval == 4:
+        return "bx"
+    elif opval == 5:
+        return "by"
+    elif opval == 6:
+        return "PI"
+    elif opval == 7:
+        return "E"
+
+
+def randomOp():
+
+    opval = randrange(1, 10)
+
+    if opval == 1:
+        return "+"
+    elif opval == 2:
+        return "-"
+    elif opval == 3:
+        return "*"
+    elif opval == 4:
+        return "/"
 
 
 class NumericStringParser(object):
