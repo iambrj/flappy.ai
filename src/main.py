@@ -53,7 +53,6 @@ class Bird:
         self.imageHeight = self.img.get_height ()
         self.expr = ""
 
-    # TODO: add functions to - crossover, mutate, generate random expr
     def randomizer(self):
 
         self.expr = ""
@@ -65,6 +64,8 @@ class Bird:
             self.expr += randomOp()
             self.expr += randomValue()
 
+    #TODO: add function to perform mutation
+    #TODO: add funciton to perform crossover (outside class?)
 
 def randomValue():
 
