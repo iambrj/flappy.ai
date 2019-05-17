@@ -89,7 +89,7 @@ def randomValue():
 
 def randomOp():
 
-    opval = randrange(1, 10)
+    opval = randrange(1, 4)
 
     if opval == 1:
         return "+"
