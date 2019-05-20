@@ -65,15 +65,20 @@ class Bird:
             self.expr.append(randomValue())
 
 
-    #TODO: add function to perform mutation
     def mutate(self):
-        x = randrange(0, len(self.expr) - 1)
-        if self.expr[x] == "+" or self.expr[x] == "-" or self.expr[x] == "*" or self.expr[x] == "/":
-            self.expr[x] = randomOp()
-        else:
-            self.expr[x] = randomValue()
+        mutated = False
+        while not mutated:
+            x = randrange(0, len(self.expr) - 1)
+            if self.expr[x] == "+" or self.expr[x] == "-" or self.expr[x] == "*" or self.expr[x] == "/":
+                self.expr[x] = randomOp()
+                mutated = True
+            else:
+                self.expr[x] = randomValue()
+                mutated = True
 
-    #TODO: add funciton to perform crossover (outside class?)
+
+#TODO: add funciton to perform crossover (outside class?)
+
 
 def randomValue():
 
