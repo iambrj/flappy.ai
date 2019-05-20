@@ -51,36 +51,22 @@ class Bird:
         self.img = pygame.image.load ("../assets/bird.png")
         self.imageWidth = self.img.get_width ()
         self.imageHeight = self.img.get_height ()
-        self.expr = ""
+        self.expr = list()
 
     def randomizer(self):
 
-        self.expr = ""
-        self.expr += randomValue()
+        self.expr = list()
+        self.expr.append(randomValue())
 
         opcount = randrange(1, 10)
 
         for i in (1, opcount):
-            self.expr += randomOp()
-            self.expr += randomValue()
+            self.expr.append(randomOp())
+            self.expr.append(randomValue())
 
 
     #TODO: add function to perform mutation
-    def mutate(self):
-
-        pos = randrange(0, len(self.expr) - 1)
-
-        tempstr = ""
-        for i in (0, pos):
-            tempstr += self.expr[i]
-
-        if self.expr[pos] == "+" or self.expr[pos] == "-" or self.expr[pos] == "*" or self.expr[pos] == "/":
-            tempstr += randomOp()
-        else:
-            tempstr += randomValue()
-
-
-   #TODO: add funciton to perform crossover (outside class?)
+    #TODO: add funciton to perform crossover (outside class?)
 
 def randomValue():
 
