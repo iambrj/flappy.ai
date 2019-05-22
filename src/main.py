@@ -1,7 +1,7 @@
 from __future__ import division
 import pygame
 import time
-from random import randint, randrange
+from random import randint
 from pyparsing import (Literal, CaselessLiteral, Word, Combine, Group, Optional, ZeroOrMore, Forward, nums, alphas, oneOf)
 import math
 import operator
@@ -43,7 +43,6 @@ class Bird:
     """
 
     def __init__(self, no):
-        self.y_move = 0
         self.x = 200
         self.y = 150
         self.number = no
@@ -58,7 +57,7 @@ class Bird:
         self.expr = list()
         self.expr.append(randomValue())
 
-        opcount = randrange(1, 10)
+        opcount = randint(10, 100)
 
         for i in (1, opcount):
             self.expr.append(randomOp())
@@ -68,7 +67,7 @@ class Bird:
     def mutate(self):
         mutated = False
         while not mutated:
-            x = randrange(0, len(self.expr) - 1)
+            x = randint(0, len(self.expr) - 1)
             if self.expr[x] == "+" or self.expr[x] == "-" or self.expr[x] == "*" or self.expr[x] == "/":
                 self.expr[x] = randomOp()
                 mutated = True
@@ -77,14 +76,22 @@ class Bird:
                 mutated = True
 
 
-#TODO: add funciton to perform crossover (outside class?)
+    def move(self, polex, poley):
+        nsp = NumericStringParser(self.x, self.y, polex, poley)
+        return nsp.eval("".join(self.expr))
+
+
+def sortScore(b):
+    return b.current_score
+
+
 def crossover(a, b):
-    posa = randrange(0, len(a) - 1)
+    posa = randint(0, len(a) - 1)
     while a[posa] not in ["+", "-", "*", "/"]:
-        posa = randrange(0, len(a) - 1)
-    posb = randrange(0, len(b) - 1)
+        posa = randint(0, len(a) - 1)
+    posb = randint(0, len(b) - 1)
     while b[posb] not in ["+", "-", "*", "/"]:
-        posb = randrange(0, len(b) - 1)
+        posb = randint(0, len(b) - 1)
     newa = list()
     newb = list()
     for i in range(0, posa):
@@ -101,10 +108,10 @@ def crossover(a, b):
 
 def randomValue():
 
-    opval = randrange(1, 5)
+    opval = randint(1, 5)
 
     if opval == 1:
-        return str(randrange(1, 100))
+        return str(randint(1, 100))
     elif opval == 2:
         return "px"
     elif opval == 3:
@@ -121,7 +128,7 @@ def randomValue():
 
 def randomOp():
 
-    opval = randrange(1, 4)
+    opval = randint(1, 4)
 
     if opval == 1:
         return "+"
@@ -309,7 +316,7 @@ def msgsurface(text):
     titleTextRectangle.center = surfaceWidth / 2, surfaceHeight / 2
     surface.blit (titleTextSurface, titleTextRectangle)
 
-    smallTextSurface, smallTextRectangle = makeTextObjs ("Press any key to continue", smallText, textcolor2)
+    smallTextSurface, smallTextRectangle = makeTextObjs ("Press any key to begin simulation", smallText, textcolor2)
     # Adjust height for small text
     smallTextRectangle.center = surfaceWidth / 2, ((surfaceHeight / 2) + 100)
 
@@ -330,25 +337,23 @@ def gameOver(finalscore):
     msgsurface("Game Over")
 
 
-# Initial screen
-def gameStart():
-    # This function displays the message on the screen
-    msgsurface ("Hold up arrow to move upwards")
-
-
 # x and y are co-ordinates measured from top left
 def image(x, y, img):
     surface.blit (img, (x, y))
 
 
 def main():
+    # Crossover and mutate rate
+    r = 0.2
+    m = 0.4
+
     # x_block and y_block determine the positions of block
     x_block = surfaceWidth
     y_block = 0
     blockWidth = 80
 
     # Block  height is randomed between 100 and  around half of surface height
-    blockHeight1 = randint (100, int (surfaceHeight / 1.5) - 100)
+    blockHeight1 = randint(1, surfaceHeight)
 
     # Initialize array of Bird objects
     birds = []
@@ -356,35 +361,29 @@ def main():
         birds.append(Bird(i))
 
     # Gap is the distance between blocks
-    gap = int(birds[0].imageHeight * 4)
+    gap = int(birds[0].imageHeight * 2)
 
     # Movement speed of block
     block_move = 4
 
     game_over = False
 
+    # Generate random genes initially
+    for b in birds:
+        b.randomizer()
+
     while True:
+        for b in birds:
+            b.current_score = 0
+            b.x = 200
+            b.y = 150
         for b in birds:
             game_over = False
             scoreVal = 0
             while not game_over:
-                # Responding to events such as key up and quit button
-                for event in pygame.event.get ():
-                    if event.type == pygame.QUIT:
-                        game_over = True
-
-                    # TODO: Implemet genetic programming here
-                    # Setting key controls
-                    # if up key is pressed move up 4 positions vertically
-                    if event.type == pygame.KEYDOWN:
-                         if event.key == pygame.K_UP:
-                             b.y_move = -4
-                    # if up key is released move down 4 positions vertically
-                    if event.type == pygame.KEYUP:
-                         if event.key == pygame.K_UP:
-                             b.y_move = 4
-                # Update position accordingly
-                b.y += b.y_move
+                print(b.move(x_block, y_block))
+                print("".join(b.expr))
+                b.y += b.move(x_block, y_block)
 
                 image(0,0,background)
                 image(b.x, b.y,b.img)
@@ -397,7 +396,7 @@ def main():
                 score(b.current_score, b.number)
 
                 # Check whether bird is in frame
-                if b.y > surfaceHeight - b.imageHeight:
+                if b.y > surfaceHeight - b.imageHeight or b.y < 0:
                     game_over = True
 
                 # Draw new block as current block exits frame
@@ -426,9 +425,29 @@ def main():
                 pygame.display.update ()
                 clock.tick (60)
 
+            # Reset block position for each bird
+            x_block = surfaceWidth
+            y_block = 0
+
+        # Elitism and crossover
+        birds.sort(key = sortScore)
+        for i in range(int((1 - r) * len(birds)), len(birds) - 1, 2):
+            crossover(birds[i].expr, birds[i + 1].expr)
+
+        # Mutation
+        count = 0
+        while count < m * len(birds):
+            for b in birds:
+                if randint(0, 1) == 0:
+                    b.mutate
+                    count += 1
+                if count == m * len(birds):
+                    break
+
+        for b in birds:
+            print("".join(b.expr))
 
 if __name__ == '__main__':
-    gameStart()
     main ()
     pygame.quit ()
     quit ()
