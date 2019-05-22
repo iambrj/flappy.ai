@@ -80,7 +80,11 @@ class Bird:
 #TODO: add funciton to perform crossover (outside class?)
 def crossover(a, b):
     posa = randrange(0, len(a) - 1)
+    while a[posa] not in ["+", "-", "*", "/"]:
+        posa = randrange(0, len(a) - 1)
     posb = randrange(0, len(b) - 1)
+    while b[posb] not in ["+", "-", "*", "/"]:
+        posb = randrange(0, len(b) - 1)
     newa = list()
     newb = list()
     for i in range(0, posa):
