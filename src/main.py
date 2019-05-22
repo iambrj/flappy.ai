@@ -78,6 +78,21 @@ class Bird:
 
 
 #TODO: add funciton to perform crossover (outside class?)
+def crossover(a, b):
+    posa = randrange(0, len(a) - 1)
+    posb = randrange(0, len(b) - 1)
+    newa = list()
+    newb = list()
+    for i in range(0, posa):
+        newa.append(a[i])
+    for i in range(posb, len(b)):
+        newa.append(b[i])
+    for i in range(0, posb):
+        newb.append(b[i])
+    for i in range(posa, len(a)):
+        newb.append(a[i])
+    a[:] = newa
+    b[:] = newb
 
 
 def randomValue():
